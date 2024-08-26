@@ -1,6 +1,9 @@
 import random
 import time
 from termcolor import cprint, colored
+import colorama
+
+colorama.init()
 
 TYPES = {
 	"NONE": 0,
@@ -135,12 +138,12 @@ class CityGenerator():
 		min_size = SIZES[zone_type]["min_size"]
 		max_size = SIZES[zone_type]["max_size"]
 
-		direction = 1 if random.random() > 0.5 else 0
-		square_width = random.randint(min_size, max_size if direction else min_size)
-		square_height = random.randint(min_size, min_size if direction else max_size)
+		# direction = 1 if random.random() > 0.5 else 0
+		# square_width = random.randint(min_size, max_size if direction else min_size)
+		# square_height = random.randint(min_size, min_size if direction else max_size)
 
-		# square_width = random.randint(min_size, max_size)
-		# square_height = random.randint(min_size, max_size)
+		square_width = random.randint(min_size, max_size)
+		square_height = random.randint(min_size, max_size)
 
 		return zone_type, square_height, square_width
 
@@ -284,12 +287,14 @@ class CityGenerator():
 
 		current_cell = starting_cell
 		self.explored.append(starting_cell)
+		unexplored = []
 
 		found = False
 
 		
 		while not found:
 			changed = current_cell
+			action_done = False
 
 			# check left
 			if self.is_in_bounds(current_cell.i, current_cell.j-1,self.grid):
@@ -298,41 +303,41 @@ class CityGenerator():
 					self.explored.append(left)
 					if pos["j"] != 0:
 						pos["j"] -= 1
-					# else:
-						# for i in range(pos["i"]):
-						# 	shape[i] = [Cell(0,0)] + shape[i]
-					
-					try:
 						shape[pos["i"]][pos["j"]] = left
-					except IndexError:
-						# shape[pos["i"]] = shape[pos["i"]][:pos["i"]] + [left] + shape[pos["i"]:]
+					else:
+						for i in range(pos["i"]):
+							shape[i].insert(0,Cell(0,0))
+
 						shape[pos["i"]].insert(0, left)
 						
 					current_cell = left
-					continue
+					action_done = True
 			
 			# check right
 			if self.is_in_bounds(current_cell.i, current_cell.j+1,self.grid):
 				right = self.grid[current_cell.i][current_cell.j+1]
-				if right.type == current_cell.type and right not in self.explored:
+				if action_done:
+					if right.type == current_cell.type and right not in self.explored:
+						unexplored.append([pos["i"], pos["j"], current_cell])
+				elif right.type == current_cell.type and right not in self.explored:
 					self.explored.append(right)
 					pos["j"] += 1
 					try:
 						shape[pos["i"]][pos["j"]] = right
 					except IndexError:
-						# shape[pos["i"]] = shape[pos["i"]][:pos["j"]+1] + [right] + shape[pos["i"]][pos["j"]+1:]
-						# for i in range(pos["i"]):
-						# 	shape[i] = shape[i].append(Cell(0,0))
 						shape[pos["i"]] = shape[pos["i"]] + [right]
 
 					
 					current_cell = right
-					continue
+					action_done = True
 
 			# check down
 			if self.is_in_bounds(current_cell.i+1, current_cell.j,self.grid):
 				down = self.grid[current_cell.i+1][current_cell.j]
-				if down.type == current_cell.type and down not in self.explored:
+				if action_done:
+					if down.type == current_cell.type and down not in self.explored:
+						unexplored.append([pos["i"], pos["j"], current_cell])
+				elif down.type == current_cell.type and down not in self.explored:
 					self.explored.append(down)
 					pos["i"] += 1
 					try:
@@ -341,10 +346,20 @@ class CityGenerator():
 						shape.append([Cell(0,0)] * pos["j"] + [down])
 						
 					current_cell = down
-					continue
+					action_done = True
 			
 			if current_cell == changed:
-				found = True
+				if len(unexplored) != 0:
+					pos["i"] = unexplored[0][0]
+					pos["j"] = unexplored[0][1]
+					current_cell = unexplored[0][2]
+					print(unexplored[0])
+
+					unexplored.pop(0)
+					# self.print_map(shape)
+					# print("-----")
+				else:
+					found = True
 
 			# print_colored(shape)
 			# print("--------")
@@ -478,22 +493,24 @@ twobytwo.build(2,2)
 
 buildings = [onebyone, onebytwo, onebythree, twobytwo]
 
-# generate a city map
-city_generator = CityGenerator(30)
-city_generator.generate_empty_grid()
-city_map = city_generator.populate_grid()
-# city_generator.print_roads(city_map)
-city_generator.print_map(city_map)
 
-print("-"*len(city_map)*3)
+if __name__ == "__main__":
+	# generate a city map
+	city_generator = CityGenerator(30)
+	city_generator.generate_empty_grid()
+	city_map = city_generator.populate_grid()
+	# city_generator.print_roads(city_map)
+	city_generator.print_map(city_map)
 
-# detect and store sections of city
-sections = city_generator.detect_shapes()
-# for section in sections:
-# 	city_generator.print_map(section)
-# 	print("---------")
-# city_generator.print_map(city_map)
-# print("-"*len(city_map)*3)
-city_generator.place_buildings_in_map(buildings, sections)
+	print("-"*len(city_map)*3)
 
-city_generator.print_colored_id(city_map)
+	# detect and store sections of city
+	# sections = city_generator.detect_shapes()
+	# for section in sections:
+	# 	city_generator.print_map(section)
+	# 	print("---------")
+	# city_generator.print_map(city_map)
+	# print("-"*len(city_map)*3)
+	# city_generator.place_buildings_in_map(buildings, sections)
+
+	# city_generator.print_colored_id(city_map)

@@ -7,6 +7,7 @@ BUILDING_TYPES = {
 	"BUILDING": 5
 }
 
+explored = []
 
 class Building:
 	def __init__(self):
@@ -107,6 +108,7 @@ def check_if_placeable(building, plot, building_type):
 	
 	return place_pos
 
+
 def detect_section_filled(section):
 	for i in range(section):
 		for j in range(section[i]):
@@ -128,19 +130,19 @@ def place_buildings(buildings, plot):
 
 				for i in range(build_length):
 					for j in range(build_width):
-						test_shape[place_pos[0]+i][place_pos[1]+j].type = TYPES["BUILDING"]
-						test_shape[place_pos[0]+i][place_pos[1]+j].id = building.id
+						grid[place_pos[0]+i][place_pos[1]+j].type = TYPES["BUILDING"]
+						grid[place_pos[0]+i][place_pos[1]+j].id = building.id
 
 				# print_colored_id(rotation)
 				# print("------")
 
 
-def find_shape(self, starting_cell):
+def find_shape(starting_cell):
 		shape = [[starting_cell]]
 		pos = {"i": 0, "j": 0}
 
 		current_cell = starting_cell
-		self.explored.append(starting_cell)
+		explored.append(starting_cell)
 
 		found = False
 
@@ -149,10 +151,10 @@ def find_shape(self, starting_cell):
 			changed = current_cell
 
 			# check left
-			if self.is_in_bounds(current_cell.i, current_cell.j-1,self.grid):
-				left = self.grid[current_cell.i][current_cell.j-1]
-				if left.type == current_cell.type and left not in self.explored:
-					self.explored.append(left)
+			if is_in_bounds(current_cell.i, current_cell.j-1,grid):
+				left = grid[current_cell.i][current_cell.j-1]
+				if left.type == current_cell.type and left not in explored:
+					explored.append(left)
 					if pos["j"] != 0:
 						pos["j"] -= 1
 					# else:
@@ -169,10 +171,10 @@ def find_shape(self, starting_cell):
 					continue
 			
 			# check right
-			if self.is_in_bounds(current_cell.i, current_cell.j+1,self.grid):
-				right = self.grid[current_cell.i][current_cell.j+1]
-				if right.type == current_cell.type and right not in self.explored:
-					self.explored.append(right)
+			if is_in_bounds(current_cell.i, current_cell.j+1,grid):
+				right = grid[current_cell.i][current_cell.j+1]
+				if right.type == current_cell.type and right not in explored:
+					explored.append(right)
 					pos["j"] += 1
 					try:
 						shape[pos["i"]][pos["j"]] = right
@@ -187,10 +189,10 @@ def find_shape(self, starting_cell):
 					continue
 
 			# check down
-			if self.is_in_bounds(current_cell.i+1, current_cell.j,self.grid):
-				down = self.grid[current_cell.i+1][current_cell.j]
-				if down.type == current_cell.type and down not in self.explored:
-					self.explored.append(down)
+			if is_in_bounds(current_cell.i+1, current_cell.j,grid):
+				down = grid[current_cell.i+1][current_cell.j]
+				if down.type == current_cell.type and down not in explored:
+					explored.append(down)
 					pos["i"] += 1
 					try:
 						shape[pos["i"]][pos["j"]] = down
@@ -229,7 +231,7 @@ def find_shape(self, starting_cell):
 
 # buildings = [onebyone, onebytwo, onebythree, twobytwo]
 
-test_shape = []
+grid = []
 
 for i in range(5):
 	row = []
@@ -238,20 +240,20 @@ for i in range(5):
 		road.type = TYPES["ROAD"]
 		row.append(road)
 
-	test_shape.append(row)
+	grid.append(row)
 
 for i in range(5):
-	test_shape[i][4].type = TYPES["RESIDENTIAL"]
+	grid[i][4].type = TYPES["RESIDENTIAL"]
 
 for i in range(4):
-	test_shape[4][i].type = TYPES["RESIDENTIAL"]
+	grid[4][i].type = TYPES["RESIDENTIAL"]
 
-print_colored(test_shape)
+# print_colored(test_shape)
 
-print_colored(find_shape(test_shape))
+# print_colored(find_shape(test_shape))
 
-print("-----------")
+# print("-----------")
 
 # place_buildings(buildings, test_shape)
 
-print_colored_id(test_shape)
+# print_colored_id(test_shape)
