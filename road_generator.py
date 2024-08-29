@@ -335,8 +335,7 @@ class CityGenerator():
 			if self.is_in_bounds(current_cell.i+1, current_cell.j,self.grid):
 				down = self.grid[current_cell.i+1][current_cell.j]
 				if action_done:
-					if down.type == current_cell.type and down not in self.explored:
-						unexplored.append([pos["i"], pos["j"], current_cell])
+					unexplored.append([pos["i"], pos["j"], current_cell])
 				elif down.type == current_cell.type and down not in self.explored:
 					self.explored.append(down)
 					pos["i"] += 1
@@ -353,16 +352,18 @@ class CityGenerator():
 					pos["i"] = unexplored[0][0]
 					pos["j"] = unexplored[0][1]
 					current_cell = unexplored[0][2]
-					print(unexplored[0])
+					print(unexplored[0][0], unexplored[0][1])
 
 					unexplored.pop(0)
-					# self.print_map(shape)
+					self.print_map(shape)
 					# print("-----")
 				else:
 					found = True
 
 			# print_colored(shape)
 			# print("--------")
+
+		print("--------")
 
 		return shape
 	
@@ -505,12 +506,12 @@ if __name__ == "__main__":
 	print("-"*len(city_map)*3)
 
 	# detect and store sections of city
-	# sections = city_generator.detect_shapes()
+	sections = city_generator.detect_shapes()
 	# for section in sections:
 	# 	city_generator.print_map(section)
 	# 	print("---------")
 	# city_generator.print_map(city_map)
 	# print("-"*len(city_map)*3)
-	# city_generator.place_buildings_in_map(buildings, sections)
+	city_generator.place_buildings_in_map(buildings, sections)
 
-	# city_generator.print_colored_id(city_map)
+	city_generator.print_colored_id(city_map)

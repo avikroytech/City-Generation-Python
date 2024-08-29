@@ -54,7 +54,8 @@ def get_color(zone):
 		return "yellow"
 	else:
 		return "white"
-	
+
+
 def is_in_bounds(i, j, map):
 	return not (i < 0 or i >= len(map) or j < 0 or j >= len(map[0]))
 
@@ -143,12 +144,14 @@ def find_shape(starting_cell):
 
 		current_cell = starting_cell
 		explored.append(starting_cell)
+		unexplored = []
 
 		found = False
 
 		
 		while not found:
 			changed = current_cell
+			action_done = False
 
 			# check left
 			if is_in_bounds(current_cell.i, current_cell.j-1,grid):
@@ -157,41 +160,46 @@ def find_shape(starting_cell):
 					explored.append(left)
 					if pos["j"] != 0:
 						pos["j"] -= 1
-					# else:
-						# for i in range(pos["i"]):
-						# 	shape[i] = [Cell(0,0)] + shape[i]
-					
-					try:
 						shape[pos["i"]][pos["j"]] = left
-					except IndexError:
-						# shape[pos["i"]] = shape[pos["i"]][:pos["i"]] + [left] + shape[pos["i"]:]
+					else:
+						for i in range(pos["i"]):
+							shape[i].insert(0,Cell(0,0))
+
 						shape[pos["i"]].insert(0, left)
 						
 					current_cell = left
-					continue
+					action_done = True
 			
 			# check right
 			if is_in_bounds(current_cell.i, current_cell.j+1,grid):
 				right = grid[current_cell.i][current_cell.j+1]
-				if right.type == current_cell.type and right not in explored:
+				print(pos["i"], pos["j"])
+				if action_done:
+					# print(right.type)
+					# print(current_cell.type)
+					print("right", right not in explored)
+					print(explored.index(right))
+					if right.type == current_cell.type and right not in explored:
+					# print("hi")
+						unexplored.append([pos["i"], pos["j"], current_cell])
+				elif right.type == current_cell.type and right not in explored:
 					explored.append(right)
 					pos["j"] += 1
 					try:
 						shape[pos["i"]][pos["j"]] = right
 					except IndexError:
-						# shape[pos["i"]] = shape[pos["i"]][:pos["j"]+1] + [right] + shape[pos["i"]][pos["j"]+1:]
-						# for i in range(pos["i"]):
-						# 	shape[i] = shape[i].append(Cell(0,0))
 						shape[pos["i"]] = shape[pos["i"]] + [right]
 
 					
 					current_cell = right
-					continue
+					action_done = True
 
 			# check down
 			if is_in_bounds(current_cell.i+1, current_cell.j,grid):
 				down = grid[current_cell.i+1][current_cell.j]
-				if down.type == current_cell.type and down not in explored:
+				if action_done:
+					unexplored.append([pos["i"], pos["j"], current_cell])
+				elif down.type == current_cell.type and down not in explored:
 					explored.append(down)
 					pos["i"] += 1
 					try:
@@ -200,13 +208,25 @@ def find_shape(starting_cell):
 						shape.append([Cell(0,0)] * pos["j"] + [down])
 						
 					current_cell = down
-					continue
+					action_done = True
 			
 			if current_cell == changed:
-				found = True
+				if len(unexplored) != 0:
+					pos["i"] = unexplored[0][0]
+					pos["j"] = unexplored[0][1]
+					current_cell = unexplored[0][2]
+					# print(unexplored[0][0], unexplored[0][1])
+
+					unexplored.pop(0)
+					# self.print_map(shape)
+					# print("-----")
+				else:
+					found = True
 
 			# print_colored(shape)
 			# print("--------")
+
+		# print("--------")
 
 		return shape
 
@@ -233,7 +253,7 @@ def find_shape(starting_cell):
 
 grid = []
 
-for i in range(5):
+for i in range(3):
 	row = []
 	for j in range(5):
 		road = Cell(i, j)
@@ -242,15 +262,19 @@ for i in range(5):
 
 	grid.append(row)
 
-for i in range(5):
+for i in range(2):
+	grid[i][2].type = TYPES["RESIDENTIAL"]
+	grid[i][3].type = TYPES["RESIDENTIAL"]
 	grid[i][4].type = TYPES["RESIDENTIAL"]
 
-for i in range(4):
-	grid[4][i].type = TYPES["RESIDENTIAL"]
+for i in range(5):
+	grid[2][i].type = TYPES["RESIDENTIAL"]
 
-# print_colored(test_shape)
+print_colored(grid)
 
-# print_colored(find_shape(test_shape))
+print("-----"*3)
+
+print_colored(find_shape(grid[0][2]))
 
 # print("-----------")
 
