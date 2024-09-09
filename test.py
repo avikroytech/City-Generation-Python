@@ -173,12 +173,7 @@ def find_shape(starting_cell):
 			# check right
 			if is_in_bounds(current_cell.i, current_cell.j+1,grid):
 				right = grid[current_cell.i][current_cell.j+1]
-				print(pos["i"], pos["j"])
 				if action_done:
-					# print(right.type)
-					# print(current_cell.type)
-					print("right", right not in explored)
-					print(explored.index(right))
 					if right.type == current_cell.type and right not in explored:
 					# print("hi")
 						unexplored.append([pos["i"], pos["j"], current_cell])
@@ -198,7 +193,8 @@ def find_shape(starting_cell):
 			if is_in_bounds(current_cell.i+1, current_cell.j,grid):
 				down = grid[current_cell.i+1][current_cell.j]
 				if action_done:
-					unexplored.append([pos["i"], pos["j"], current_cell])
+					if down.type == current_cell.type and down not in explored:
+						unexplored.append([pos["i"], pos["j"], current_cell])
 				elif down.type == current_cell.type and down not in explored:
 					explored.append(down)
 					pos["i"] += 1
@@ -222,6 +218,9 @@ def find_shape(starting_cell):
 					# print("-----")
 				else:
 					found = True
+
+			print([f"{cell.i}, {cell.j}" for cell in explored])
+			print_colored(shape)
 
 			# print_colored(shape)
 			# print("--------")
